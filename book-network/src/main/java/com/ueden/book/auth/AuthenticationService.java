@@ -87,14 +87,14 @@ public class AuthenticationService {
 
     private String generateActivationToken(int length) {
         String characters = "0123456789";
-        StringBuilder tokenBuuilder = new StringBuilder();
+        StringBuilder tokenBuilder = new StringBuilder();
         SecureRandom random = new SecureRandom();
 
         for (int i = 0; i < length; i++) {
             int randomIndex = random.nextInt(characters.length());
-            tokenBuuilder.append(characters.charAt(randomIndex));
+            tokenBuilder.append(characters.charAt(randomIndex));
         }
-        return tokenBuuilder.toString();
+        return tokenBuilder.toString();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
