@@ -1,0 +1,27 @@
+package com.ueden.book.feedback;
+
+import com.ueden.book.book.Book;
+import com.ueden.book.common.BaseEntity;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+@Getter
+@Setter
+@SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+public class Feedback extends BaseEntity {
+
+    private Double note;
+
+    private String comment;
+
+    @ManyToOne
+    @JoinColumn(name = "book_id") // this creates the column book_id in Feedback table
+    private Book book;
+}
