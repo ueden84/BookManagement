@@ -1,7 +1,7 @@
 package com.ueden.book.handler;
 
+import com.ueden.book.exception.OperationNotPermittedException;
 import jakarta.mail.MessagingException;
-import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -18,18 +18,18 @@ import java.util.Set;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = LockedException.class)
-    public ResponseEntity<ExceptionResponse> handleException(LockedException exp){
-    return ResponseEntity
-            .status(HttpStatus.UNAUTHORIZED)
-            .body(ExceptionResponse.builder()
-                    .businessErrorCode(BusinessErrorCodes.ACCOUNT_LOCKED.getCode())
-                    .businessErrorDescription(BusinessErrorCodes.ACCOUNT_LOCKED.getDescription())
-                    .error(exp.getMessage())
-                    .build());
+    public ResponseEntity<ExceptionResponse> handleException(LockedException exp) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ExceptionResponse.builder()
+                        .businessErrorCode(BusinessErrorCodes.ACCOUNT_LOCKED.getCode())
+                        .businessErrorDescription(BusinessErrorCodes.ACCOUNT_LOCKED.getDescription())
+                        .error(exp.getMessage())
+                        .build());
     }
 
     @ExceptionHandler(value = DisabledException.class)
-    public ResponseEntity<ExceptionResponse> handleException(DisabledException exp){
+    public ResponseEntity<ExceptionResponse> handleException(DisabledException exp) {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(ExceptionResponse.builder()
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = BadCredentialsException.class)
-    public ResponseEntity<ExceptionResponse> handleException(BadCredentialsException exp){
+    public ResponseEntity<ExceptionResponse> handleException(BadCredentialsException exp) {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(ExceptionResponse.builder()
@@ -52,9 +52,18 @@ public class GlobalExceptionHandler {
 
     // e.g.  not able to send email
     @ExceptionHandler(value = MessagingException.class)
-    public ResponseEntity<ExceptionResponse> handleException(MessagingException exp){
+    public ResponseEntity<ExceptionResponse> handleException(MessagingException exp) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ExceptionResponse.builder()
+                        .error(exp.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(value = OperationNotPermittedException.class)
+    public ResponseEntity<ExceptionResponse> handleException(OperationNotPermittedException exp) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(ExceptionResponse.builder()
                         .error(exp.getMessage())
                         .build());
@@ -63,7 +72,7 @@ public class GlobalExceptionHandler {
     // e.g.  user sends invalid data, ... username, password etc.
     // thrown by @Valid annotation on controller
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionResponse> handleException(MethodArgumentNotValidException exp){
+    public ResponseEntity<ExceptionResponse> handleException(MethodArgumentNotValidException exp) {
         Set<String> errors = new HashSet<>();
         exp.getBindingResult().getAllErrors()
                 .forEach((error) -> errors.add(error.getDefaultMessage()));
@@ -76,7 +85,7 @@ public class GlobalExceptionHandler {
 
     // Cover any other exception case
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<ExceptionResponse> handleException(Exception exp){
+    public ResponseEntity<ExceptionResponse> handleException(Exception exp) {
         // log the exception
         exp.printStackTrace();
         return ResponseEntity
