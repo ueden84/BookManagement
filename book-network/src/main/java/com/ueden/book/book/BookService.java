@@ -1,6 +1,8 @@
 package com.ueden.book.book;
 
 import com.ueden.book.common.PageResponse;
+import com.ueden.book.history.BookTransactionHistory;
+import com.ueden.book.history.BookTransactionHistoryRepository;
 import com.ueden.book.user.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +19,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookService {
 
-    private final BookMapper bookMapper;
     private final BookRepository bookRepository;
+    private final BookTransactionHistoryRepository bookTransactionHistoryRepository;
+    private final BookMapper bookMapper;
 
     public Integer save(BookRequest request, Authentication connectedUser) {
         User user = (User) connectedUser.getPrincipal();
@@ -37,6 +40,35 @@ public class BookService {
         User user = (User) connectedUser.getPrincipal();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdDate").descending());
         Page<Book> books = bookRepository.findAllDisplayableBooks(pageable, user.getId());
+        return toPageResponse(books);
+    }
+
+    public PageResponse<BookResponse> findAllBooksByOwner(int pageNumber, int pageSize, Authentication connectedUser) {
+        User user = (User) connectedUser.getPrincipal();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdDate").descending());
+        Page<Book> books = bookRepository.findAll(BookSpecification.withOwnerId(user.getId()), pageable);
+        return toPageResponse(books);
+    }
+
+    public PageResponse<BorrowedBookResponse> findAllBorrowedBooksByOwner(int pageNumber, int pageSize, Authentication connectedUser) {
+        User user = (User) connectedUser.getPrincipal();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdDate").descending());
+        Page<BookTransactionHistory> allBorrowedBooks = bookTransactionHistoryRepository.findAllBorrowedBooks(pageable, user.getId());
+        List<BorrowedBookResponse> borrowedBookResponses = allBorrowedBooks.stream()
+                .map(bookMapper::toBorrowedBookResponse)
+                .toList();
+        return new PageResponse<>(
+                borrowedBookResponses,
+                allBorrowedBooks.getNumber(),
+                allBorrowedBooks.getSize(),
+                allBorrowedBooks.getTotalElements(),
+                allBorrowedBooks.getTotalPages(),
+                allBorrowedBooks.isFirst(),
+                allBorrowedBooks.isLast()
+        );
+    }
+
+    private PageResponse<BookResponse> toPageResponse(Page<Book> books) {
         List<BookResponse> bookResponses = books.stream()
                 .map(bookMapper::toBookResponse)
                 .toList();
