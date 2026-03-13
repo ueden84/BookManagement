@@ -5,10 +5,10 @@ import com.ueden.book.history.BookTransactionHistory;
 import com.ueden.book.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="_user")
+@Table(name = "_user")
 @EntityListeners(AuditingEntityListener.class)
 public class User implements UserDetails, Principal {
 
@@ -46,9 +46,9 @@ public class User implements UserDetails, Principal {
     private List<Role> roles;
 
     @OneToMany(mappedBy = "owner") // table Book will get owner_id column, see Book entity
-    private List<Book>  books;
+    private List<Book> books;
 
-    @OneToMany( mappedBy = "user")
+    @OneToMany(mappedBy = "user")
     private List<BookTransactionHistory> histories;
 
     @CreatedDate
@@ -67,7 +67,7 @@ public class User implements UserDetails, Principal {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles
                 .stream()
-                .map(role ->  new SimpleGrantedAuthority(role.getName()))
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
     }
 
@@ -101,7 +101,7 @@ public class User implements UserDetails, Principal {
         return enabled;
     }
 
-    public String getFullName(){
+    public String getFullName() {
         return firstName + " " + lastName;
     }
 }
