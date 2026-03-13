@@ -1,0 +1,7 @@
+{
+  "input": "./src/openapi/openapi.json",
+  "output": "./src/app/services",
+  "serviceIndex": true,
+  "module": true,
+  "serviceSuffix": "Service"
+}
